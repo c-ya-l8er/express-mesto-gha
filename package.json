@@ -1,0 +1,24 @@
+{
+  "name": "express-mesto-gha",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "git@github.com:c-ya-l8er/express-mesto-gha.git",
+  "author": "c-ya-l8er <c-ya-l8er@ya.ru>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "eslint --fix --ext .js,.jsx .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.3"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.28.1",
+    "nodemon": "^3.0.1"
+  }
+}
