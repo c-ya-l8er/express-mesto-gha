@@ -22,7 +22,7 @@ app.use(userRoutes);
 
 app.use((req, res) => {
   // Capture All 404 errors
-  res.status(404).render("404.ejs");
+  res.status(404).send("404");
 });
 
 async function init() {
