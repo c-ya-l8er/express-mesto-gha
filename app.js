@@ -10,10 +10,6 @@ const app = express();
 app.use(express.json());
 
 app.use((req, res, next) => {
-  res.status(404).json({
-    message:
-      "Ohh you are lost, read the API documentation to find your way back home :)",
-  });
   req.user = {
     _id: "651eee534aa75786ceb71ab8", // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
