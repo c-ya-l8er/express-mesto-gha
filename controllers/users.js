@@ -11,12 +11,10 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  const { userId } = req.params;
-
-  User.findById(req.params.userId)
+  const { userId } = req.user._id;
+  User.findById(userId)
     .orFail(new Error("NotFound"))
     .then((user) => res.send({ data: user }))
-    //.catch(() => res.status(500).send({ message: "Произошла ошибка" }));
     .catch((error) => {
       if (error.message === "NotFound") {
         return res
@@ -34,8 +32,29 @@ module.exports.getUserById = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: "Произошла ошибка" }));
+    .catch(() =>
+      res.status(500).send({ message: "Произошла ошибка на стороне сервера" })
+    );
+};
+
+module.exports.updateProfile = (req, res) => {
+  const { name, about } = req.body;
+  const { userId } = req.user._id;
+  User.findByIdAndUpdate(userId, { name, about }, { new: true })
+    .then((user) => res.send({ data: user }))
+    .catch(() =>
+      res.status(500).send({ message: "Произошла ошибка на стороне сервера" })
+    );
+};
+
+module.exports.updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  const { userId } = req.user._id;
+  User.findByIdAndUpdate(userId, { avatar }, { new: true })
+    .then((user) => res.send({ data: user }))
+    .catch(() =>
+      res.status(500).send({ message: "Произошла ошибка на стороне сервера" })
+    );
 };

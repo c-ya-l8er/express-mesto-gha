@@ -9,7 +9,7 @@ const cardSchema = new mongoose.Schema({
   },
   link: {
     type: String,
-    required: [true, "Поле link является обязательным"]
+    required: [true, "Поле link является обязательным"],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
