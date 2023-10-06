@@ -9,7 +9,7 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  const { userId } = req.user._id;
+  const userId = req.user._id;
   User.findById(userId)
     .orFail(new Error("NotFound"))
     .then((user) => res.status(200).send({ data: user }))
@@ -46,7 +46,7 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
-  const { userId } = req.user._id;
+  const userId = req.user._id;
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
     .orFail(new Error("NotFound"))
     .then((user) => res.status(200).send({ data: user }))
