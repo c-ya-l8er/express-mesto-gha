@@ -9,7 +9,7 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  const userId = req.user._id;
+  const { userId } = req.params;
   User.findById(userId)
     .orFail(new Error("NotFound"))
     .then((user) => res.status(200).send({ data: user }))
