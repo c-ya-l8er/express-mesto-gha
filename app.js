@@ -13,7 +13,6 @@ app.use((req, res) => {
 });
 
 app.use((req, res, next) => {
-  res.status(404).send({ message: "Ошибка - 404 Страница не найдена" });
   req.user = {
     _id: "651eee534aa75786ceb71ab8", // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
