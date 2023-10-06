@@ -10,6 +10,9 @@ const app = express();
 app.use(express.json());
 
 app.use((req, res, next) => {
+  const error = new Error("Not Found");
+  error.status = 404;
+  next(error);
   req.user = {
     _id: "651eee534aa75786ceb71ab8", // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
