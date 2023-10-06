@@ -20,10 +20,9 @@ app.use((req, res, next) => {
 app.use(cardRoutes);
 app.use(userRoutes);
 
-app.use((req, res, next) => {
-  const error = new Error("Not Found");
-  error.status = 404;
-  next(error);
+app.use((req, res) => {
+  // Capture All 404 errors
+  res.status(404).render("404.ejs");
 });
 
 async function init() {
