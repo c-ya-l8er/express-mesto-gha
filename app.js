@@ -13,8 +13,11 @@ app.use((req, res, next) => {
   req.user = {
     _id: "651eee534aa75786ceb71ab8", // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
-
   next();
+});
+
+app.use((req, res) => {
+  res.status(404).send({ message: "Ошибка - 404 Страница не найдена" });
 });
 
 app.use(cardRoutes);
