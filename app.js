@@ -16,12 +16,12 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(cardRoutes);
+app.use(userRoutes);
+
 app.use((req, res) => {
   res.status(404).send({ message: "Ошибка - 404 Страница не найдена" });
 });
-
-app.use(cardRoutes);
-app.use(userRoutes);
 
 async function init() {
   await mongoose.connect(MONGO_URL);
