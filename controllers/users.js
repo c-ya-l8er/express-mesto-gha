@@ -1,11 +1,12 @@
 const { ValidationError, CastError } = require('mongoose').Error;
 const User = require('../models/user');
+const statusCodes = require('../utils/constants').HTTP_STATUS;
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send({ data: users }))
+    .then((users) => res.status(statusCodes.OK).send({ data: users }))
     .catch((error) => res
-      .status(500)
+      .status(statusCodes.INTERNAL_SERVER_ERROR)
       .send({ message: 'Произошла ошибка на стороне сервера', error }));
 };
 
@@ -13,18 +14,18 @@ module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(new Error('NotFound'))
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(statusCodes.OK).send({ data: user }))
     .catch((error) => {
       if (error.message === 'NotFound') {
         return res
-          .status(404)
+          .status(statusCodes.NOT_FOUND)
           .send({ message: ' Пользователь по указанному id не найден' });
       }
       if (error instanceof CastError) {
-        return res.status(400).send({ message: 'Передан не валидный id' });
+        return res.status(statusCodes.BAD_REQUEST).send({ message: 'Передан не валидный id' });
       }
       return res
-        .status(500)
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
         .send({ message: 'Произошла ошибка на стороне сервера' });
     });
 };
@@ -32,15 +33,15 @@ module.exports.getUserById = (req, res) => {
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.status(201).send({ data: user }))
+    .then((user) => res.status(statusCodes.CREATED).send({ data: user }))
     .catch((error) => {
       if (error instanceof ValidationError) {
-        return res.status(400).send({
+        return res.status(statusCodes.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при создании пользователя',
         });
       }
       return res
-        .status(500)
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
         .send({ message: 'Произошла ошибка на стороне сервера' });
     });
 };
@@ -49,20 +50,20 @@ function updateUser(req, res, newData) {
   const userId = req.user._id;
   User.findByIdAndUpdate(userId, newData, { new: true, runValidators: true })
     .orFail(new Error('NotFound'))
-    .then((user) => res.status(200).send({ data: user }))
+    .then((user) => res.status(statusCodes.OK).send({ data: user }))
     .catch((error) => {
       if (error.message === 'NotFound') {
         return res
-          .status(404)
+          .status(statusCodes.NOT_FOUND)
           .send({ message: 'Пользователь с указанным id не найден' });
       }
       if (error instanceof ValidationError) {
-        return res.status(400).send({
+        return res.status(statusCodes.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
       return res
-        .status(500)
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
         .send({ message: 'Произошла ошибка на стороне сервера' });
     });
 }
@@ -83,7 +84,7 @@ module.exports.updateAvatar = (req, res) => {
 //   User.findByIdAndUpdate(
 //     userId,
 //     { name, about },
-//     { new: true },
+//     { new: true, runValidators: true },
 //   )
 //     .orFail(new Error('NotFound'))
 //     .then((user) => res.status(200).send({ data: user }))
@@ -107,7 +108,7 @@ module.exports.updateAvatar = (req, res) => {
 // module.exports.updateAvatar = (req, res) => {
 //   const { avatar } = req.body;
 //   const userId = req.user._id;
-//   User.findByIdAndUpdate(userId, { avatar }, { new: true })
+//   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true})
 //     .orFail(new Error('NotFound'))
 //     .then((user) => res.status(200).send({ data: user }))
 //     .catch((error) => {
