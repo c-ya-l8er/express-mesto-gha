@@ -128,8 +128,8 @@ module.exports.login = (req, res) => {
         token: jwt.sign({ _id: user._id }, 'super-puper-secret', { expiresIn: '7d' }),
       });
     })
-    .catch((err) => {
-      res.status(statusCodes.UNAUTHORIZED).send({ message: err.message });
+    .catch((error) => {
+      res.status(statusCodes.UNAUTHORIZED).send({ message: error.message });
     });
 };
 

@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const errors = require('celebrate');
 const router = require('./routes/index');
 const statusCodes = require('./utils/constants').HTTP_STATUS;
 const { login, createUser } = require('./controllers/users');
@@ -23,6 +24,7 @@ app.use(express.json());
 
 app.use(auth);
 app.use(router);
+app.use(errors());
 
 app.use((req, res) => {
   res.status(statusCodes.NOT_FOUND).send({ message: 'Ошибка - 404 Страница не найдена' });
