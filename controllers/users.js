@@ -1,4 +1,6 @@
 const { ValidationError, CastError } = require('mongoose').Error;
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const statusCodes = require('../utils/constants').HTTP_STATUS;
 
@@ -22,7 +24,9 @@ module.exports.getUserById = (req, res) => {
           .send({ message: ' Пользователь по указанному id не найден' });
       }
       if (error instanceof CastError) {
-        return res.status(statusCodes.BAD_REQUEST).send({ message: 'Передан не валидный id' });
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .send({ message: 'Передан не валидный id' });
       }
       return res
         .status(statusCodes.INTERNAL_SERVER_ERROR)
@@ -31,8 +35,18 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.status(statusCodes.CREATED).send({ data: user }))
     .catch((error) => {
       if (error instanceof ValidationError) {
@@ -76,6 +90,20 @@ module.exports.updateProfile = (req, res) => {
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   updateUser(req, res, { avatar });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      res.send({
+        token: jwt.sign({ _id: user._id }, 'super-puper-secret', { expiresIn: '7d' }),
+      });
+    })
+    .catch((err) => {
+      res.status(statusCodes.UNAUTHORIZED).send({ message: err.message });
+    });
 };
 
 // module.exports.updateProfile = (req, res) => {

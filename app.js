@@ -1,10 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = require('./routes/index');
+const statusCodes = require('./utils/constants').HTTP_STATUS;
+const { login, createUser } = require('./controllers/users');
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use(express.json());
 
@@ -18,7 +23,7 @@ app.use((req, res, next) => {
 app.use(router);
 
 app.use((req, res) => {
-  res.status(404).send({ message: 'Ошибка - 404 Страница не найдена' });
+  res.status(statusCodes.NOT_FOUND).send({ message: 'Ошибка - 404 Страница не найдена' });
 });
 
 async function init() {
