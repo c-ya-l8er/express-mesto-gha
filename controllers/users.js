@@ -34,7 +34,29 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.getCurrentUser = (req, res) => {
+  const { userId } = req.user._id;
+  User.findById(userId)
+    .orFail(new Error('NotFound'))
+    .then((user) => res.status(statusCodes.OK).send({ data: user }))
+    .catch((error) => {
+      if (error.message === 'NotFound') {
+        return res
+          .status(statusCodes.NOT_FOUND)
+          .send({ message: ' Пользователь по указанному id не найден' });
+      }
+      if (error instanceof CastError) {
+        return res
+          .status(statusCodes.BAD_REQUEST)
+          .send({ message: 'Передан не валидный id' });
+      }
+      return res
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .send({ message: 'Произошла ошибка на стороне сервера' });
+    });
+};
+
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -53,6 +75,11 @@ module.exports.createUser = (req, res) => {
         return res.status(statusCodes.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при создании пользователя',
         });
+      }
+      if (error.code === 11000) {
+        next(new Error('Пользователь пытается зарегистрироваться по уже существующему в базе email'));
+      } else {
+        next(error);
       }
       return res
         .status(statusCodes.INTERNAL_SERVER_ERROR)
