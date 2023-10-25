@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const errors = require('celebrate');
+const { errors } = require('celebrate');
 const router = require('./routes/index');
 const statusCodes = require('./utils/constants').HTTP_STATUS;
 const { login, createUser } = require('./controllers/users');
