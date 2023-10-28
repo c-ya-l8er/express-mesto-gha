@@ -71,23 +71,19 @@ module.exports.createUser = (req, res, next) => {
     }))
     .then((user) => res.status(statusCodes.CREATED).send({ data: user }))
     .catch((error) => {
-      if (error instanceof ValidationError) {
-        return res.status(statusCodes.BAD_REQUEST).send({
-          message: 'Переданы некорректные данные при создании пользователя',
-        });
-      }
       if (error.code === 11000) {
         next(
           new Error(
             'Пользователь пытается зарегистрироваться по уже существующему в базе email',
           ),
         );
-      } else {
-        next(error);
       }
-      return res
-        .status(statusCodes.INTERNAL_SERVER_ERROR)
-        .send({ message: 'Произошла ошибка на стороне сервера' });
+      if (error instanceof ValidationError) {
+        return res.status(statusCodes.BAD_REQUEST).send({
+          message: 'Переданы некорректные данные при создании пользователя',
+        });
+      }
+      return next(error);
     });
 };
 
@@ -137,53 +133,3 @@ module.exports.login = (req, res) => {
       res.status(statusCodes.UNAUTHORIZED).send({ message: error.message });
     });
 };
-
-// module.exports.updateProfile = (req, res) => {
-//   const { name, about } = req.body;
-//   const userId = req.user._id;
-//   User.findByIdAndUpdate(
-//     userId,
-//     { name, about },
-//     { new: true, runValidators: true },
-//   )
-//     .orFail(new Error('NotFound'))
-//     .then((user) => res.status(200).send({ data: user }))
-//     .catch((error) => {
-//       if (error.message === 'NotFound') {
-//         return res
-//           .status(404)
-//           .send({ message: 'Пользователь с указанным id не найден' });
-//       }
-//       if (error instanceof ValidationError) {
-//         return res.status(400).send({
-//           message: 'Переданы некорректные данные при обновлении профиля',
-//         });
-//       }
-//       return res
-//         .status(500)
-//         .send({ message: 'Произошла ошибка на стороне сервера' });
-//     });
-// };
-
-// module.exports.updateAvatar = (req, res) => {
-//   const { avatar } = req.body;
-//   const userId = req.user._id;
-//   User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true})
-//     .orFail(new Error('NotFound'))
-//     .then((user) => res.status(200).send({ data: user }))
-//     .catch((error) => {
-//       if (error.message === 'NotFound') {
-//         return res
-//           .status(404)
-//           .send({ message: 'Пользователь с указанным id не найден' });
-//       }
-//       if (error instanceof ValidationError) {
-//         return res.status(400).send({
-//           message: ' Переданы некорректные данные при обновлении аватара',
-//         });
-//       }
-//       return res
-//         .status(500)
-//         .send({ message: 'Произошла ошибка на стороне сервера' });
-//     });
-// };
