@@ -9,11 +9,9 @@ const auth = require('./middlewares/auth');
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
 const app = express();
-
+app.use(express.json());
 app.post('/signin', login);
 app.post('/signup', createUser);
-
-app.use(express.json());
 
 // app.use((req, res, next) => {
 // req.user = {

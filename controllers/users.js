@@ -77,7 +77,11 @@ module.exports.createUser = (req, res, next) => {
         });
       }
       if (error.code === 11000) {
-        next(new Error('Пользователь пытается зарегистрироваться по уже существующему в базе email'));
+        next(
+          new Error(
+            'Пользователь пытается зарегистрироваться по уже существующему в базе email',
+          ),
+        );
       } else {
         next(error);
       }
@@ -121,11 +125,12 @@ module.exports.updateAvatar = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-
   return User.findUserByCredentials(email, password)
     .then((user) => {
       res.send({
-        token: jwt.sign({ _id: user._id }, 'super-puper-secret', { expiresIn: '7d' }),
+        token: jwt.sign({ _id: user._id }, 'super-puper-secret', {
+          expiresIn: '7d',
+        }),
       });
     })
     .catch((error) => {
