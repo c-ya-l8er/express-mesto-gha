@@ -27,10 +27,36 @@ module.exports.createCard = (req, res) => {
     });
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndDelete(req.params.cardId)
+// module.exports.deleteCard = (req, res) => {
+//   Card.findByIdAndDelete(req.params.cardId)
+//     .orFail(new Error('NotFound'))
+//     .then((card) => res.status(statusCodes.OK).send({ data: card }))
+//     .catch((error) => {
+//       if (error.message === 'NotFound') {
+//         return res
+//           .status(statusCodes.NOT_FOUND)
+//           .send({ message: 'Карточка с указанным id не найдена' });
+//       }
+//       if (error instanceof CastError) {
+//         return res.status(statusCodes.BAD_REQUEST).send({
+//           message: 'Переданы некорректные данные',
+//         });
+//       }
+//       return res
+//         .status(statusCodes.INTERNAL_SERVER_ERROR)
+//         .send({ message: 'Произошла ошибка на стороне сервера' });
+//     });
+// };
+
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
     .orFail(new Error('NotFound'))
-    .then((card) => res.status(statusCodes.OK).send({ data: card }))
+    .then((card) => {
+      if (card.owner.toString() !== req.user._id) {
+        return next(new Error('Невозможно удалить карточку'));
+      }
+      return Card.deleteOne(card).then(() => res.status(statusCodes.OK).send({ data: card }));
+    })
     .catch((error) => {
       if (error.message === 'NotFound') {
         return res
