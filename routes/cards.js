@@ -1,7 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 const router = require('express').Router();
 
-const httpRegex = /^(http:\/\/|https:\/\/)(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9]{2,8})((\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?(#[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]+)?)?$/;
+const httpRegex = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/;
 const {
   getCards,
   createCard,

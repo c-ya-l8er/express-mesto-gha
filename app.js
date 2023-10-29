@@ -7,7 +7,7 @@ const statusCodes = require('./utils/constants').HTTP_STATUS;
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
-const httpRegex = /^(http:\/\/|https:\/\/)(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z0-9]{2,8})((\/[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]*)?(#[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=]+)?)?$/;
+const httpRegex = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/;
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
@@ -61,7 +61,6 @@ app.use((req, res) => {
 //     });
 //   next();
 // });
-
 // app.use((error, req, res, next) => {
 //   res.status(error.status || 500);
 //   res.json({

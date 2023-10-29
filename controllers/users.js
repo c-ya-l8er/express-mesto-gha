@@ -4,15 +4,13 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const statusCodes = require('../utils/constants').HTTP_STATUS;
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(statusCodes.OK).send({ data: users }))
-    .catch((error) => res
-      .status(statusCodes.INTERNAL_SERVER_ERROR)
-      .send({ message: 'Произошла ошибка на стороне сервера', error }));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(new Error('NotFound'))
@@ -28,14 +26,13 @@ module.exports.getUserById = (req, res) => {
           .status(statusCodes.BAD_REQUEST)
           .send({ message: 'Передан не валидный id' });
       }
-      return res
-        .status(statusCodes.INTERNAL_SERVER_ERROR)
-        .send({ message: 'Произошла ошибка на стороне сервера' });
+      return next(error);
     });
 };
 
-module.exports.getCurrentUser = (req, res) => {
-  const { userId } = req.user._id;
+module.exports.getCurrentUser = (req, res, next) => {
+  const userId = req.user._id;
+  // console.log(req.user._id);
   User.findById(userId)
     .orFail(new Error('NotFound'))
     .then((user) => res.status(statusCodes.OK).send({ data: user }))
@@ -50,9 +47,7 @@ module.exports.getCurrentUser = (req, res) => {
           .status(statusCodes.BAD_REQUEST)
           .send({ message: 'Передан не валидный id' });
       }
-      return res
-        .status(statusCodes.INTERNAL_SERVER_ERROR)
-        .send({ message: 'Произошла ошибка на стороне сервера' });
+      return next(error);
     });
 };
 
@@ -87,7 +82,7 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-function updateUser(req, res, newData) {
+function updateUser(req, res, newData, next) {
   const userId = req.user._id;
   User.findByIdAndUpdate(userId, newData, { new: true, runValidators: true })
     .orFail(new Error('NotFound'))
@@ -103,9 +98,7 @@ function updateUser(req, res, newData) {
           message: 'Переданы некорректные данные при обновлении профиля',
         });
       }
-      return res
-        .status(statusCodes.INTERNAL_SERVER_ERROR)
-        .send({ message: 'Произошла ошибка на стороне сервера' });
+      return next(error);
     });
 }
 
@@ -119,7 +112,7 @@ module.exports.updateAvatar = (req, res) => {
   updateUser(req, res, { avatar });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -129,7 +122,5 @@ module.exports.login = (req, res) => {
         }),
       });
     })
-    .catch((error) => {
-      res.status(statusCodes.UNAUTHORIZED).send({ message: error.message });
-    });
+    .catch(next);
 };
