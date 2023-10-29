@@ -79,11 +79,12 @@ module.exports.createUser = (req, res, next) => {
         });
       }
       if (error.code === 11000) {
-        return res.status(statusCodes.CONFLICT || 409).send(
-          new Error(
-            'Пользователь пытается зарегистрироваться по уже существующему в базе email',
-          ),
-        );
+        return res
+          .status(statusCodes.CONFLICT || 409)
+          .send({
+            message:
+              'Пользователь пытается зарегистрироваться по уже существующему в базе email',
+          });
       }
       return next(error);
     });
