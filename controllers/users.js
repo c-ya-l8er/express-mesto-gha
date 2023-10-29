@@ -78,7 +78,7 @@ module.exports.createUser = (req, res, next) => {
           message: 'Переданы некорректные данные при создании пользователя',
         });
       }
-      if (error.name === 'ConflictError' && error.code === 11000) {
+      if (error.name === 'ConflictError' && error.code === 11000 && error.status(409)) {
         next(
           new Error(
             'Пользователь пытается зарегистрироваться по уже существующему в базе email',
