@@ -64,21 +64,26 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.status(statusCodes.CREATED).send({
-      name: user.name, about: user.about, avatar: user.avatar, email: user.email,
-    }))
+    .then((user) => {
+      res.status(statusCodes.CREATED).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
+    })
     .catch((error) => {
+      if (error instanceof ValidationError) {
+        return res.status(statusCodes.BAD_REQUEST).send({
+          message: 'Переданы некорректные данные при создании пользователя',
+        });
+      }
       if (error.code === 11000) {
         next(
           new Error(
             'Пользователь пытается зарегистрироваться по уже существующему в базе email',
           ),
         );
-      }
-      if (error instanceof ValidationError) {
-        return res.status(statusCodes.BAD_REQUEST).send({
-          message: 'Переданы некорректные данные при создании пользователя',
-        });
       }
       return next(error);
     });
@@ -124,5 +129,8 @@ module.exports.login = (req, res, next) => {
         }),
       });
     })
-    .catch(next);
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+      return next();
+    });
 };
