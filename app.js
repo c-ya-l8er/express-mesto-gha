@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const winston = require('winston');
 const { errors, celebrate, Joi } = require('celebrate');
 const router = require('./routes/index');
-const statusCodes = require('./utils/constants').HTTP_STATUS;
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NOT_FOUND = require('./errors/NotFound');
 
 const httpRegex = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-/])*)?/;
 
@@ -43,46 +43,20 @@ app.use(auth);
 app.use(router);
 app.use(errors());
 
-app.use((req, res) => {
-  res
-    .status(statusCodes.NOT_FOUND)
-    .send({ message: 'Ошибка - 404 Страница не найдена' });
+app.use((req, res, next) => {
+  next(new NOT_FOUND('Ошибка - 404 Страница не найдена'));
 });
-
-// app.use((err, req, res, next) => {
-//   const { statusCode = 500, message } = err;
-
-//   res
-//     .status(statusCode)
-//     .send({
-//       message: statusCode === 500
-//         ? 'Произошла ошибка на стороне сервера'
-//         : message,
-//     });
-//   next();
-// });
-// app.use((error, req, res, next) => {
-//   res.status(error.status || 500);
-//   res.json({
-//     status: error.status,
-//     message: error.message || 'Произошла ошибка на стороне сервера',
-//     stack: error.stack,
-//   });
-//   next();
-// });
 
 const logger = winston.createLogger({
   level: 'error',
   format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'error.log' }),
-  ],
+  transports: [new winston.transports.File({ filename: 'error.log' })],
 });
 
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Произошла ошибка на стороне сервера';
-  logger.error(err.stack);
+app.use((error, req, res, next) => {
+  const statusCode = error.statusCode || 500;
+  const message = statusCode === 500 ? 'Произошла ошибка на стороне сервера' : error.message;
+  logger.error(error.stack);
   res.status(statusCode).send({ message });
   next();
 });
