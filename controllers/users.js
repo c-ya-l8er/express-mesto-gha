@@ -19,11 +19,8 @@ module.exports.getUserById = (req, res, next) => {
     .orFail(new NOT_FOUND('NotFound'))
     .then((user) => res.status(statusCodes.OK).send({ data: user }))
     .catch((error) => {
-      if (error.message === 'NotFound') {
-        next(new NOT_FOUND('Пользователь по указанному id не найден'));
-      }
       if (error instanceof CastError) {
-        next(new BAD_REQUEST('Передан не валидный id'));
+        return next(new BAD_REQUEST('Передан не валидный id'));
       }
       return next(error);
     });
@@ -60,10 +57,10 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((error) => {
       if (error instanceof ValidationError) {
-        next(new BAD_REQUEST('Переданы некорректные данные при создании пользователя'));
+        return next(new BAD_REQUEST('Переданы некорректные данные при создании пользователя'));
       }
       if (error.code === 11000) {
-        next(new CONFLICT('Пользователь пытается зарегистрироваться по уже существующему в базе email'));
+        return next(new CONFLICT('Пользователь пытается зарегистрироваться по уже существующему в базе email'));
       }
       return next(error);
     });
@@ -75,11 +72,8 @@ function updateUser(req, res, newData, next) {
     .orFail(new NOT_FOUND('NotFound'))
     .then((user) => res.status(statusCodes.OK).send({ data: user }))
     .catch((error) => {
-      if (error.message === 'NotFound') {
-        next(new NOT_FOUND('Пользователь по указанному id не найден'));
-      }
       if (error instanceof CastError) {
-        next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+        return next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
       }
       return next(error);
     });
