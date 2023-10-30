@@ -55,7 +55,8 @@ const logger = winston.createLogger({
 
 app.use((error, req, res, next) => {
   const statusCode = error.statusCode || 500;
-  const message = statusCode === 500 ? 'Произошла ошибка на стороне сервера' : error.message;
+  // const message = statusCode === 500 ? 'Произошла ошибка на стороне сервера' : error.message;
+  const message = error.message || 'Произошла ошибка на стороне сервера';
   logger.error(error.stack);
   res.status(statusCode).send({ message });
   next();
