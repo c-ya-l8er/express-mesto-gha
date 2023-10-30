@@ -59,12 +59,12 @@ function changeLikeCardStatus(req, res, likeStatus, next) {
     });
 }
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   const likeStatus = { $addToSet: { likes: req.user._id } };
-  changeLikeCardStatus(req, res, likeStatus);
+  changeLikeCardStatus(req, res, likeStatus, next);
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   const likeStatus = { $pull: { likes: req.user._id } };
-  changeLikeCardStatus(req, res, likeStatus);
+  changeLikeCardStatus(req, res, likeStatus, next);
 };
